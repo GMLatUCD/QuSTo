@@ -5,6 +5,8 @@ Updated 1/19/2021
 
 QuSlicer inputs XYZ from mesh file, outputs XZ (or XY, etc.) for QuSTo. 
 
+3D image files (stl) for Sling tailed Agama skin, Florida Mammoth molar and Sea snail shell are available at: https://ucdavis.box.com/s/vt7l8sfe86cj0xb4xer6g9u60t3kcbyz
+
 ## Changelog
 
 Ver 0.5
