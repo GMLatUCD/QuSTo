@@ -36,7 +36,7 @@ Six example files can be downloaded from the GitHub site for users to get famili
 
 2 - Input file format
 
-The QuSTo application accepts files in .csv format. The file should contain two strings of data, the first one containing the x-coordinates of the profile and the second one containing the y-coordinates of the profiles. The first element of each column is a label such as "X (um)" and "Y (um)"
+The QuSTo application accepts files in .csv format. The file should contain two strings of data, the first one containing the x-coordinates of the profile and the second one containing the z (or y)-coordinates of the profiles. The first element of each column is a label such as "X (units)" and "Z (units)"
 
 The shape parameters for each structure can be exported in .csv format.
 
@@ -62,8 +62,38 @@ To calculate the skewness and kurtosis parameters, a statistical distribution ba
 
 
 
-4 - References
+4 - Using the sepperate QuSlicer module (OPTIONAL STEP)
+
+The Input files described above can be obtained from any bio-imaging technique from using any software capable with the capability of generating elevation profiles from a 3D image.
+
+However, users also have the option of using the included QuSlicer module to obtain 2D profiles from 3D images. The files created from QuSlicer can then be loaded and analyzed with QuSTo.
+
+QuSlicer works by running a sequence of three functions that each take vertex data from the last: 1) sliceVerts, 2) skimSlice, and 3) smoothSlice
+
+sliceVerts(verts, axis, floor, ceil) takes a ‘slice’ of vertices from a 3D mesh. Inputs: 'verts' inputs the base vertex data, 'axis' (‘x’ ‘y’ or ‘z’) chooses slice direction, 'floor' and 'ceil' (0.0-1.0) define the size and location of the slice (ex: setting floor = .1 and ceil = .2 keeps verts between the 10% and 20% mark along the range of the chosen axis).
+
+skimSlice(verts, axis, skim) removes unwanted data from the top or bottom of a choosen axis. Inputs: 'verts' inputs the data from sliceVerts, 'axis' ('x’, ‘y’, ‘z’) chooses the axis to skim from, 'skim' (0.0-1.0) defines the ratio of vertices to be preserved from the slice along the choosen axis (a positive skim preserves the top %, while a negative preserves the bottom %). Multiple skimSlices can be used to further adjust the slice. (In the case of multiple ‘skims,’ the output from the previous skimSlice serves as the input 'verts'.)
+
+smoothSlice(verts, smootSteps, scale) removes noise and smoothes. Inputs: 'verts' inputs the data from skimSlice, 'smoothSteps' (0-3) defines level of “smoothness” (via flattening local peaks and troughs), 'scale' is a multiple used to increase the X,Z resolution if the resulting data is too small for skew and kurtosis calculations in QuSTo (see above section).
+
+QuSlicer is not an executable file like QuSTo, but can be run in python by using the following line of code (objects in [BRACKETS] are to be replaced by the user with the item described):
+
+from QuSlicer import QuSlicer
+import open3d as o3d
+import matplotlib.pyplot as plt
+
+meshPath = "[ENTER OR COPY/PASTE THE PATH NAME OF THE 3D IMAGE FILE (.obj, .stl, etc.)]"
+mesh = o3d.io.read_triangle_mesh(meshPath)
+print(mesh)
+slicedVerts = QuSlicer.sliceVerts(mesh.vertices, [AXIS], [FLOOR], [CIEL])
+skimmedVerts = QuSlicer.skimSlice(slicedVerts, [AXIS], [SKIM])
+smoothedVerts = QuSlicer.smoothSlice(skimmedVerts, [STEPS], [SCALE])
+QuSlicer.writeCSV(smoothedVerts,'[INPUT THE LOCATION TO SAVE THE .CSV FILE]', "[INPUT THE DESIRED FILE NAME]")
+
+3D image files (stl) for Sling tailed Agama skin, Florida Mammoth molar and Sea snail shell are available at: https://ucdavis.box.com/s/vt7l8sfe86cj0xb4xer6g9u60t3kcbyz
+
+5 - References
 
 ISO-4287. (1997). Geometrical Product Specifications (GPS) — Surface texture: Profile method — Term, definitions and surface texture parameters. Geneva, Switzerland.
-Martinez, Nguyen, Basson, Irschick, and Baeckens (2020). Quantifying surface topography of biological systems from 3D scans. Submitted for possible publication at Methods in Ecology and Evolution. 
+Martinez, Nguyen, Basson, Irschick, Baeckens, and Medina (2020). Quantifying surface topography of biological systems from 3D scans. Submitted for possible publication at Methods in Ecology and Evolution. 
 Whitehouse (2004). Surfaces and their measurements. Oxford: Butterworth-Heinemann.
